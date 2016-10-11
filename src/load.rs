@@ -94,18 +94,18 @@ impl Chain {
                                         libmnl_sys::socket::NLM_F_ACK,
                                         seq);
 
-            let chain = chain::alloc();
-            assert!(chain != ptr::null_mut());
+            let selector = chain::alloc();
+            assert!(selector != ptr::null_mut());
             let table_cstr = CString::new(table).unwrap();
-            chain::set(chain,
+            chain::set(selector,
                        chain::chain_attr::TABLE as u16,
                        table_cstr.as_ptr() as *const c_void);
             let name_cstr = CString::new(name).unwrap();
-            chain::set(chain,
+            chain::set(selector,
                        chain::chain_attr::NAME as u16,
                        name_cstr.as_ptr() as *const c_void);
-            chain::nlmsg_build_payload(header, chain);
-            chain::free(chain);
+            chain::nlmsg_build_payload(header, selector);
+            chain::free(selector);
 
 
             let mut chain = Chain::default();
@@ -144,14 +144,14 @@ impl Chain {
                                         libmnl_sys::socket::NLM_F_DUMP,
                                         seq);
 
-            let chain = chain::alloc();
-            assert!(chain != ptr::null_mut());
+            let selector = chain::alloc();
+            assert!(selector != ptr::null_mut());
             let table_cstr = CString::new(table).unwrap();
-            chain::set(chain,
+            chain::set(selector,
                        chain::chain_attr::TABLE as u16,
                        table_cstr.as_ptr() as *const c_void);
-            chain::nlmsg_build_payload(header, chain);
-            chain::free(chain);
+            chain::nlmsg_build_payload(header, selector);
+            chain::free(selector);
 
 
             let mut chains: Vec<Chain> = vec![];
@@ -177,7 +177,8 @@ impl Rule {
     pub fn load(family: Family, table: &str, chain: &str) -> Result<Vec<Rule>> {
 
         unsafe extern "C" fn rule_cb(header: *const libmnl_sys::nlmsghdr,
-                                     rules: *mut c_void) -> i32 {
+                                     rules: *mut c_void)
+                                     -> i32 {
             let rules = &mut *(rules as *mut Vec<Rule>);
             rules.push(Rule::decode(header).unwrap());
             callback::CallbackResult::MNL_CB_OK as i32
