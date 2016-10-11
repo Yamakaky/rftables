@@ -54,7 +54,7 @@ impl Table {
                                         libmnl_sys::socket::NLM_F_DUMP,
                                         seq);
 
-            let mut tables = vec![];
+            let mut tables: Vec<Table> = vec![];
             {
                 let mut socket = try!(socket::Socket::open());
                 let mut request = Request {
@@ -64,6 +64,9 @@ impl Table {
                     data: &mut tables,
                 };
                 try!(socket.exec_request(&mut request));
+            }
+            for table in &mut tables {
+                table.chains = try!(Chain::load_table(table.family, &table.name));
             }
             Ok(tables)
         }

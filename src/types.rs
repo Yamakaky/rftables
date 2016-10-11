@@ -9,7 +9,7 @@ pub struct Table {
 pub type Set = ();
 
 enum_from_primitive! {
-    #[derive(Debug)]
+    #[derive(Debug, Copy, Clone, Eq, PartialEq)]
     pub enum Family {
         Inet = 1,
         Ipv4 = 2,
@@ -43,12 +43,12 @@ pub struct Hook {
     pub priority: i64,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq)]
 pub enum HookType {
     Filter,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq)]
 pub enum HookType2 {
     Input,
     Output,
@@ -56,7 +56,7 @@ pub enum HookType2 {
 }
 
 enum_from_primitive! {
-    #[derive(Debug)]
+    #[derive(Debug, Copy, Clone, Eq, PartialEq)]
     pub enum Policy {
         Drop = 0,
         Accept = 1,
