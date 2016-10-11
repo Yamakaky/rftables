@@ -6,8 +6,8 @@ authors = ["yamakaky"]
 [dependencies]
 error-chain = "0.5"
 libc = "0.2"
-libmnl-sys = {path = "../libmnl-sys"}
-libnftnl-sys = { path = "../libnftnl-sys" }
+libmnl-sys = { git = "https://github.com/Yamakaky/libmnl-sys"}
+libnftnl-sys = { git = "https://github.com/Yamakaky/libnftnl-sys" }
 num = "0.1"
 
 [[bin]]
