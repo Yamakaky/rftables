@@ -8,11 +8,13 @@ pub struct Table {
 
 pub type Set = ();
 
-#[derive(Debug)]
-pub enum Family {
-    Inet,
-    Ipv4,
-    Ipv6,
+enum_from_primitive! {
+    #[derive(Debug)]
+    pub enum Family {
+        Inet = 1,
+        Ipv4 = 2,
+        Ipv6 = 10,
+    }
 }
 
 #[derive(Debug, Default)]
@@ -53,10 +55,12 @@ pub enum HookType2 {
     Forward,
 }
 
-#[derive(Debug)]
-pub enum Policy {
-    Drop,
-    Accept,
+enum_from_primitive! {
+    #[derive(Debug)]
+    pub enum Policy {
+        Drop = 0,
+        Accept = 1,
+    }
 }
 
 impl Default for Policy {

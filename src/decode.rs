@@ -1,6 +1,7 @@
 use std::ffi::CStr;
 use std::ptr;
 
+use enum_primitive::FromPrimitive;
 use libc;
 use libmnl_sys::nlmsghdr;
 
@@ -30,14 +31,33 @@ impl Family {
     }
 }
 
-impl Policy {
-    pub fn from_raw(raw: u32) -> Policy {
-        // TODO: use constants from netfilter.h
-        match raw {
-            0 => Policy::Drop,
-            1 => Policy::Accept,
-            _ => unreachable!(),
-        }
+impl Table {
+    pub fn decode(header: *const nlmsghdr) -> Result<Table> {
+        use libnftnl_sys::table;
+
+        let raw_table = unsafe {
+            let raw_table = table::alloc();
+            assert!(raw_table != ptr::null_mut());
+            if table::nlmsg_parse(header, raw_table) < 0 {
+                try!(Err(ErrorKind::Parse))
+            }
+            raw_table
+        };
+        let name = unsafe {
+            CStr::from_ptr(table::get_str(raw_table, table::attr::NAME as u16))
+                .to_str()
+                .unwrap()
+                .into()
+        };
+        let family = unsafe {
+            Family::from_u32(table::get_u32(raw_table, table::attr::FAMILY as u16)).unwrap()
+        };
+        Ok(Table {
+            name: name,
+            family: family,
+            chains: vec![],
+            sets: vec![],
+        })
     }
 }
 
@@ -61,9 +81,9 @@ impl Chain {
         };
         let packets = unsafe { chain::get_u64(raw_chain, chain::chain_attr::PACKETS as u16) };
         let bytes = unsafe { chain::get_u64(raw_chain, chain::chain_attr::BYTES as u16) };
-        let policy = Policy::from_raw(unsafe {
+        let policy = Policy::from_u32(unsafe {
             chain::get_u32(raw_chain, chain::chain_attr::POLICY as u16)
-        });
+        }).unwrap();
         Ok(Chain {
             name: name,
             packets: packets,

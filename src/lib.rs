@@ -1,6 +1,8 @@
 #![recursion_limit = "1024"]
 
 #[macro_use]
+extern crate enum_primitive;
+#[macro_use]
 extern crate error_chain;
 extern crate libc;
 extern crate libmnl_sys;

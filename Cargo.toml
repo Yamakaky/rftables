@@ -4,6 +4,7 @@ version = "0.1.0"
 authors = ["yamakaky"]
 
 [dependencies]
+enum_primitive = "0.1"
 error-chain = "0.5"
 libc = "0.2"
 libmnl-sys = { git = "https://github.com/Yamakaky/libmnl-sys"}

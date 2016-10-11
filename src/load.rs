@@ -8,8 +8,66 @@ use libnftnl_sys::*;
 use types::*;
 use socket;
 
+error_chain! {
+    links {
+        socket::Error, socket::ErrorKind, Socket;
+    }
+}
+
+impl Table {
+    pub fn load_all() -> Result<Vec<Table>> {
+
+        unsafe extern "C" fn table_cb(header: *const libmnl_sys::nlmsghdr, tables: *mut c_void) -> i32 {
+            let tables = &mut *(tables as *mut Vec<Table>);
+            tables.push(Table::decode(header).unwrap());
+            libmnl_sys::callback::CallbackResult::MNL_CB_OK as i32
+        }
+
+        unsafe {
+            struct Request<'a> {
+                buf: [i8; libmnl_sys::socket::BUFFER_SIZE],
+                len: usize,
+                tables: &'a mut Vec<Table>,
+            }
+
+            impl<'a> socket::Request for Request<'a> {
+                fn data(&mut self) -> *mut c_void {
+                    self.buf.as_mut_ptr() as *mut c_void
+                }
+                fn len(&self) -> usize {
+                    self.len
+                }
+                fn callback(&mut self) -> (callback::cb_t, *mut c_void) {
+                    (Some(table_cb), self.tables as *mut Vec<Table> as *mut c_void)
+                }
+            }
+
+            let seq = 0;
+            let mut buf = [0; libmnl_sys::socket::BUFFER_SIZE];
+            let header =
+                common::nlmsg_build_hdr(buf.as_mut_ptr(),
+                nf_tables::nf_tables_msg_types::NFT_MSG_GETTABLE as u16,
+                chain::NFPROTO::UNSPEC as u16,
+                libmnl_sys::socket::NLM_F_DUMP,
+                seq);
+
+            let mut tables = vec![];
+            {
+                let mut socket = try!(socket::Socket::open());
+                let mut request = Request {
+                    buf: buf,
+                    len: (*header).nlmsg_len as usize,
+                    tables: &mut tables,
+                };
+                try!(socket.exec_request(&mut request));
+            }
+            Ok(tables)
+        }
+    }
+}
+
 impl Chain {
-    pub fn load(family: Family, table: &str, name: &str) -> Result<Chain, ()> {
+    pub fn load(family: Family, table: &str, name: &str) -> Result<Chain> {
 
         unsafe extern "C" fn chain_cb(header: *const libmnl_sys::nlmsghdr, chain: *mut c_void) -> i32 {
             let chain = &mut *(chain as *mut Chain);
@@ -42,7 +100,7 @@ impl Chain {
                 common::nlmsg_build_hdr(buf.as_mut_ptr(),
                 nf_tables::nf_tables_msg_types::NFT_MSG_GETCHAIN as u16,
                 family.raw(),
-                4,
+                libmnl_sys::socket::NLM_F_ACK,
                 seq);
             let table = CString::new(table).unwrap();
 
@@ -61,16 +119,15 @@ impl Chain {
 
             let mut chain = Chain::default();
             {
-                let mut socket = socket::Socket::open().unwrap();
+                let mut socket = try!(socket::Socket::open());
                 let mut request = Request {
                     buf: buf,
                     len: (*header).nlmsg_len as usize,
                     chain: &mut chain,
                 };
-                socket.exec_request(&mut request).unwrap();
+                try!(socket.exec_request(&mut request));
             }
             Ok(chain)
         }
     }
-
 }
