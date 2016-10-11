@@ -19,18 +19,6 @@ error_chain! {
     }
 }
 
-impl Family {
-    pub fn raw(&self) -> u16 {
-        use libnftnl_sys::chain::NFPROTO;
-
-        (match *self {
-            Family::Inet => NFPROTO::INET,
-            Family::Ipv4 => NFPROTO::IPV4,
-            Family::Ipv6 => NFPROTO::IPV6,
-        }) as u16
-    }
-}
-
 impl Table {
     pub fn decode(header: *const nlmsghdr) -> Result<Table> {
         use libnftnl_sys::table;

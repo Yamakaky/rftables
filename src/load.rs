@@ -103,7 +103,7 @@ impl Chain {
             let header =
                 common::nlmsg_build_hdr(buf.as_mut_ptr(),
                                         nf_tables::nf_tables_msg_types::NFT_MSG_GETCHAIN as u16,
-                                        family.raw(),
+                                        family as u16,
                                         libmnl_sys::socket::NLM_F_ACK,
                                         seq);
             let table = CString::new(table).unwrap();
