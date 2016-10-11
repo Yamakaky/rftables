@@ -76,9 +76,7 @@ impl Socket {
                     Some(CallbackResult::MNL_CB_STOP) => {
                         break;
                     }
-                    Some(CallbackResult::MNL_CB_ERROR) => {
-                        try!(Err(ErrorKind::Errno))
-                    }
+                    Some(CallbackResult::MNL_CB_ERROR) => try!(Err(ErrorKind::Errno)),
                     _ => unreachable!(),
                 }
             }

@@ -17,7 +17,9 @@ error_chain! {
 impl Table {
     pub fn load_all() -> Result<Vec<Table>> {
 
-        unsafe extern "C" fn table_cb(header: *const libmnl_sys::nlmsghdr, tables: *mut c_void) -> i32 {
+        unsafe extern "C" fn table_cb(header: *const libmnl_sys::nlmsghdr,
+                                      tables: *mut c_void)
+                                      -> i32 {
             let tables = &mut *(tables as *mut Vec<Table>);
             tables.push(Table::decode(header).unwrap());
             libmnl_sys::callback::CallbackResult::MNL_CB_OK as i32
@@ -46,10 +48,10 @@ impl Table {
             let mut buf = [0; libmnl_sys::socket::BUFFER_SIZE];
             let header =
                 common::nlmsg_build_hdr(buf.as_mut_ptr(),
-                nf_tables::nf_tables_msg_types::NFT_MSG_GETTABLE as u16,
-                chain::NFPROTO::UNSPEC as u16,
-                libmnl_sys::socket::NLM_F_DUMP,
-                seq);
+                                        nf_tables::nf_tables_msg_types::NFT_MSG_GETTABLE as u16,
+                                        chain::NFPROTO::UNSPEC as u16,
+                                        libmnl_sys::socket::NLM_F_DUMP,
+                                        seq);
 
             let mut tables = vec![];
             {
@@ -69,7 +71,9 @@ impl Table {
 impl Chain {
     pub fn load(family: Family, table: &str, name: &str) -> Result<Chain> {
 
-        unsafe extern "C" fn chain_cb(header: *const libmnl_sys::nlmsghdr, chain: *mut c_void) -> i32 {
+        unsafe extern "C" fn chain_cb(header: *const libmnl_sys::nlmsghdr,
+                                      chain: *mut c_void)
+                                      -> i32 {
             let chain = &mut *(chain as *mut Chain);
             *chain = Chain::decode(header).unwrap();
             libmnl_sys::callback::CallbackResult::MNL_CB_STOP as i32
@@ -98,10 +102,10 @@ impl Chain {
             let mut buf = [0; libmnl_sys::socket::BUFFER_SIZE];
             let header =
                 common::nlmsg_build_hdr(buf.as_mut_ptr(),
-                nf_tables::nf_tables_msg_types::NFT_MSG_GETCHAIN as u16,
-                family.raw(),
-                libmnl_sys::socket::NLM_F_ACK,
-                seq);
+                                        nf_tables::nf_tables_msg_types::NFT_MSG_GETCHAIN as u16,
+                                        family.raw(),
+                                        libmnl_sys::socket::NLM_F_ACK,
+                                        seq);
             let table = CString::new(table).unwrap();
 
             let chain = chain::alloc();

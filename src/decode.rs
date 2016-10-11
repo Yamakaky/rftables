@@ -82,8 +82,9 @@ impl Chain {
         let packets = unsafe { chain::get_u64(raw_chain, chain::chain_attr::PACKETS as u16) };
         let bytes = unsafe { chain::get_u64(raw_chain, chain::chain_attr::BYTES as u16) };
         let policy = Policy::from_u32(unsafe {
-            chain::get_u32(raw_chain, chain::chain_attr::POLICY as u16)
-        }).unwrap();
+                chain::get_u32(raw_chain, chain::chain_attr::POLICY as u16)
+            })
+            .unwrap();
         Ok(Chain {
             name: name,
             packets: packets,
