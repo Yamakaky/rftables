@@ -1,0 +1,14 @@
+[package]
+name = "rftables"
+version = "0.1.0"
+authors = ["yamakaky"]
+
+[dependencies]
+error-chain = "0.5"
+libc = "0.2"
+libmnl-sys = {path = "../libmnl-sys"}
+libnftnl-sys = { path = "../libnftnl-sys" }
+num = "0.1"
+
+[[bin]]
+name = "rft"
