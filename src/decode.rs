@@ -83,3 +83,9 @@ impl Chain {
         })
     }
 }
+
+impl Rule {
+    pub fn decode(header: *const nlmsghdr) -> Result<Rule> {
+        unimplemented!()
+    }
+}
