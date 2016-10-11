@@ -1,3 +1,6 @@
+use std::collections::HashSet;
+use std::net;
+
 #[derive(Debug)]
 pub struct Table {
     pub name: String,
@@ -6,7 +9,19 @@ pub struct Table {
     pub sets: Vec<Set>,
 }
 
-pub type Set = ();
+pub type Set = HashSet<Item>;
+
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
+pub enum Item {
+    Ipv4(net::Ipv4Addr),
+    Ipv6(net::Ipv6Addr),
+    String(String),
+    // TODO: variable size
+    Integer(u64),
+    // TODO: variable size
+    Bitmask(u64),
+    Mac(String),
+}
 
 enum_from_primitive! {
     #[derive(Debug, Copy, Clone, Eq, PartialEq)]
